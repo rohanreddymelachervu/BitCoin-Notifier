@@ -17,7 +17,7 @@ use PostMan to send get and post requests. <br>
 key_value = e07c9cdc-e7be-4e7e-8ba7-9c787e202292 send as query parameter for endpoints /getLogs and /getAllUsers
 # Endpoints
 /alerts/create (POST) : Takes a post request of json type example 
-{"username":<username>, "email":<email>, "price":<price>}
+{"username":username, "email":email, "price":price}
 Creates a User ORM object and adds it to the persisted SQLAlchemy database.
 
 /alerts/delete (POST) : Takes a post with the username to delete example
