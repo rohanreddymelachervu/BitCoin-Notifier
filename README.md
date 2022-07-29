@@ -3,7 +3,9 @@
 
 Created a Python Flask app which constantly checks for Bitcoin value and emails any logged in user to their respective email every 10 mins if the Bitcoin value exceeds the user entered price.
 # Steps to run app:
-git clone this repo
+git clone this repo <br>
+command <br>
+
 git clone <repo_link> <br>
 
 go to directory you cloned in and run python3 app.py
