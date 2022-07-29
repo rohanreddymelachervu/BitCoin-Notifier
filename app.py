@@ -44,7 +44,7 @@ def readAndgetMaxBTC():
             break
     users = User.query.all()
     for user in users:
-        if user.price==BTCValue:
+        if user.price<=BTCValue:
             job = q.enqueue(sendMail(user.email))
 def sendMail(email):
     print('Sending email')
@@ -56,7 +56,7 @@ def sendMail(email):
     with yagmail.SMTP(user, app_pwd) as yag:
         yag.send(to, subject, content)
         print('Sent email successfully')    
-    
+    time.sleep(1000)
 app=Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///krypto.db'
 db = SQLAlchemy(app)
