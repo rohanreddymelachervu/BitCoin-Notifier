@@ -12,8 +12,15 @@ from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 import smtplib
 import yagmail #plcirqnbqfzmsvlg
+from redis import Redis
+from rq import Queue
+
 BTCValue=0
 email_set=set()
+redis_conn = Redis(host='localhost', port=6379, db=0)
+q = Queue('my_queue', connection=redis_conn)
+
+
 def getNumberOfUsers():
     users = User.query.all()
     return len(users)
@@ -38,18 +45,17 @@ def readAndgetMaxBTC():
     users = User.query.all()
     for user in users:
         if user.price==BTCValue:
-            sendMail(user.email)
+            job = q.enqueue(sendMail(user.email))
 def sendMail(email):
+    print('Sending email')
     user = 'rrcuber@gmail.com'
     app_pwd = 'plcirqnbqfzmsvlg'
     to = email
     subject = 'Bitcoin price update'
     content = ['Bitcoin price updated to '+str(BTCValue)]
-    if email not in email_set:
-        email_set.add(email)
-        with yagmail.SMTP(user, app_pwd) as yag:
-            yag.send(to, subject, content)
-            print('Sent email successfully')    
+    with yagmail.SMTP(user, app_pwd) as yag:
+        yag.send(to, subject, content)
+        print('Sent email successfully')    
     
 app=Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///krypto.db'
@@ -123,6 +129,23 @@ def getUsers():
         'email' : [u.email for u in User.query.paginate(page=page,per_page=1).items]
         }
     
+@app.route('/getLogs',methods=['GET'])
+def getLogs():
+    args = request.args
+    key = args.get('key')
+    if key != SECRET_KEY:
+        return jsonify({
+            "Error":"Invalid token received"
+        })
+    page = int(request.args.get('page'))
+    allLogs = Log.query.all()
+    jsonAllLogsList = []
+    for log in allLogs:
+        jsonAllLogsList.append(log.__dict__)
+    return{
+        'username' : [u.username for u in Log.query.paginate(page=page,per_page=5).items],
+        'event' : [u.event for u in Log.query.paginate(page=page,per_page=5).items]
+    }    
 @app.route('/getLogs',methods=['GET'])
 def getlogs():
     print(Log.query.all())
