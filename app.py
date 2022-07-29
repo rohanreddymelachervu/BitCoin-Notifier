@@ -1,13 +1,19 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 import json
+import os
 from flask_sqlalchemy import SQLAlchemy
+from flask_paginate import Pagination, get_page_parameter
 from threading import Thread
 import requests
 import time
 import atexit
 from apscheduler.schedulers.background import BackgroundScheduler
-
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
+import smtplib
+import yagmail #plcirqnbqfzmsvlg
 BTCValue=0
+email_set=set()
 def getNumberOfUsers():
     users = User.query.all()
     return len(users)
@@ -28,14 +34,23 @@ def readAndgetMaxBTC():
         if(coin["id"]=='bitcoin'):
             BTCValue = coin['current_price']
         else:
-            continue
+            break
     users = User.query.all()
     for user in users:
         if user.price==BTCValue:
-            print(user.email)
-
+            sendMail(user.email)
+def sendMail(email):
+    user = 'rrcuber@gmail.com'
+    app_pwd = 'plcirqnbqfzmsvlg'
+    to = email
+    subject = 'Bitcoin price update'
+    content = ['Bitcoin price updated to '+str(BTCValue)]
+    if email not in email_set:
+        email_set.add(email)
+        with yagmail.SMTP(user, app_pwd) as yag:
+            yag.send(to, subject, content)
+            print('Sent email successfully')    
     
-
 app=Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///krypto.db'
 db = SQLAlchemy(app)
@@ -74,6 +89,8 @@ def create_alert():
     uname = content['username']
     p = content['price']
     e = content['email']
+    if e in email_set:
+        email_set.remove(e)
     print(uname, p, e)
     if (User.query.filter(User.username == uname)).count()>0:
         return jsonify({
@@ -89,9 +106,23 @@ def create_alert():
 
 @app.route('/getAllUsers', methods=['GET'])
 def getUsers():
-    print(getAllUsers())
-    return jsonify(getNumberOfUsers())
-
+    args = request.args
+    key = args.get('key')
+    if key != SECRET_KEY:
+        return jsonify({
+            "Error":"Invalid token received"
+        })
+    page = int(request.args.get('page'))
+    allUsers = getAllUsers()
+    jsonUserList=[]
+    for user in allUsers:
+        jsonUserList.append(user.__dict__)
+    return {
+        'users' : [u.username for u in User.query.paginate(page=page,per_page=1).items],
+        'prices' : [u.price for u in User.query.paginate(page=page,per_page=1).items],
+        'email' : [u.email for u in User.query.paginate(page=page,per_page=1).items]
+        }
+    
 @app.route('/getLogs',methods=['GET'])
 def getlogs():
     print(Log.query.all())
@@ -115,4 +146,5 @@ if __name__ == '__main__':
     scheduler.start()
     # Shut down the scheduler when exiting the app
     atexit.register(lambda: scheduler.shutdown())
+    SECRET_KEY = 'e07c9cdc-e7be-4e7e-8ba7-9c787e202292'
     app.run(debug=True)
