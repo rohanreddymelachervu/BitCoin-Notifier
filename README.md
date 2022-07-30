@@ -38,4 +38,4 @@ returns error json response if the <key_value> doesn't match in the file.
 # Bitcoin value
 
 Bitcoin value is updated every 3 minutes and when the value increases to expected price of any user, an email is sent to the users informing the bitcoin price.
-User Email is read from the persisted SQLAlchemy database. Which then uses Redis as a broker to send an email.
+User Email is read from the persisted SQLite database. Which then uses Redis as a broker to send an email.
