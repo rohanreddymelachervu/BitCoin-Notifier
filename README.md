@@ -8,6 +8,7 @@ command <br>
 
 git clone <repo_link> <br>
 
+pip install -r requirements.txt 
 go to directory you cloned in and run python3 app.py
 <br>
 
