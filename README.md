@@ -39,3 +39,11 @@ returns error json response if the <key_value> doesn't match in the file.
 
 Bitcoin value is updated every 3 minutes and when the value increases to expected price of any user, an email is sent to the users informing the bitcoin price.
 User Email is read from the persisted SQLite database. Which then uses Redis as a broker to send an email.
+  
+  ![image](https://user-images.githubusercontent.com/81566132/181879082-06435d39-fedd-4a81-a12f-e204175d0d79.png)
+
+  ![image](https://user-images.githubusercontent.com/81566132/181879112-612fd728-197a-4138-b7b0-8b8a54b95256.png)
+  
+![image](https://user-images.githubusercontent.com/81566132/181879144-8321813b-9e43-47e2-a9b5-08c09fd6b6f8.png)
+
+  ![image](https://user-images.githubusercontent.com/81566132/181879162-c9b2b502-88c8-4407-bb71-09b6924b5aa1.png)
