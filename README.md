@@ -1,5 +1,5 @@
 
-# Krypto back end task
+# BitCoin price back end 
 
 Created a Python Flask app which constantly checks for Bitcoin value and emails any logged in user to their respective email every 10 mins if the Bitcoin value exceeds the user entered price.
 # Steps to run app:
